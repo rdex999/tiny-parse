@@ -11,35 +11,37 @@
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
 
-#pragma once
+#include "option.hpp"
 
-#include <string>
-#include <variant>
-#include <sys/types.h>
+#include <optional>
+
+#include "utils.hpp"
 
 namespace tiny_parse
 {
-class Option
+template <typename T>
+Option::Option(std::string canonical, T value, bool required, std::string alias, std::string help)
+	: canonical(std::move(canonical)), alias(std::move(alias)), help(std::move(help)), required(required),
+		value_(value)
 {
-public:
-	template <typename T>
-	explicit Option(std::string canonical, T value, bool required, std::string alias = {}, std::string help = {});
+	assert_supported_type<T>();
+}
 
-	const std::string canonical;
-	const std::string alias;
-	const std::string help;
-	const bool required;
+template<typename T>
+void Option::set(T value)
+{
+	assert_supported_type<T>();
+	value_ = value;
+	++set_count;
+}
 
-	template <typename T>
-	void set(T value);
+template<typename T>
+T Option::get() const
+{
+	assert_supported_type<T>();
+	if (!std::holds_alternative<T>(value_))
+		throw std::logic_error("The option does not contain the requested type.");
 
-	template <typename T>
-	[[nodiscard]] T get() const;
-
-	[[nodiscard]] bool was_set() const { return set_count > 0; };
-
-private:
-	std::variant<int, double, bool, std::string> value_;
-	uint set_count = 0;
-};
+	return std::get<T>(value_);
+}
 }

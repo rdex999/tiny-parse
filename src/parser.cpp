@@ -17,23 +17,24 @@
 
 namespace tiny_parse
 {
-Parser::Parser()
-{
-}
-
 void Parser::parse(int argc, char* argv[])
 {
+	/* TODO: Implement parsing */
 }
 
 template<typename  T>
 void Parser::add_option(std::string canonical, std::string alias, std::string help, std::optional<T> default_value)
 {
+	if (options_.contains(canonical))
+		throw std::logic_error(std::string("Argument \"") + canonical + "\" was already defined.");
 
+	options_[canonical] = std::make_unique<Option>(canonical, std::move(default_value.value_or(T {})),
+		!default_value.has_value(), std::move(alias), std::move(help));
 }
 
 template<typename T>
 T Parser::get(const std::string& name)
 {
-
+	/* TODO: Implement get */
 }
 }

@@ -14,32 +14,19 @@
 #pragma once
 
 #include <string>
-#include <variant>
-#include <sys/types.h>
+#include <type_traits>
 
 namespace tiny_parse
 {
-class Option
+template <typename T>
+constexpr bool is_supported_type()
 {
-public:
-	template <typename T>
-	explicit Option(std::string canonical, T value, bool required, std::string alias = {}, std::string help = {});
+	return std::is_same_v<T, int> || std::is_same_v<T, double> || std::is_same_v<T, bool> || std::is_same_v<T, std::string>;
+}
 
-	const std::string canonical;
-	const std::string alias;
-	const std::string help;
-	const bool required;
-
-	template <typename T>
-	void set(T value);
-
-	template <typename T>
-	[[nodiscard]] T get() const;
-
-	[[nodiscard]] bool was_set() const { return set_count > 0; };
-
-private:
-	std::variant<int, double, bool, std::string> value_;
-	uint set_count = 0;
-};
+template <typename T>
+constexpr void assert_supported_type()
+{
+	static_assert(is_supported_type<T>(), "Type T must be a supported type. The supported types are: int, double, bool, std::string.");
+}
 }

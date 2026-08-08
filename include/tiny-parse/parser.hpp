@@ -15,7 +15,6 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 #include "../../src/option.hpp"
 
@@ -24,12 +23,10 @@ namespace tiny_parse
 class Parser
 {
 public:
-	Parser();
-
 	void parse(int argc, char* argv[]);
 
 	/**
-	 *
+	 * Adds the given argument. Will be parsed when parse() is called.
 	 * @tparam T The type of the argument.
 	 * @param canonical Optional. The full name of the argument, not including leading "--". For example, "speed" (not "--speed")
 	 * @param alias Optional. The short name of the argument, not including leading "-". For example, "s" (not "-s")
@@ -40,11 +37,16 @@ public:
 	template<typename  T>
 	void add_option(std::string canonical, std::string alias = {}, std::string help = {}, std::optional<T> default_value = std::nullopt);
 
+	/**
+	 * Gets the requested argument by its canonical name. (long name)
+	 * @tparam T The type of the argument to get.
+	 * @param name The canonical (long name) of the argument.
+	 * @return T as the requested argument.
+	 */
 	template<typename T>
 	T get(const std::string& name);
 
 private:
-	std::unordered_map<std::string, Option&> options_by_name_;
-	std::vector<Option> options_;
+	std::unordered_map<std::string, std::unique_ptr<Option>> options_;
 };
 }

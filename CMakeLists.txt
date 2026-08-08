@@ -7,6 +7,8 @@ add_library(tiny_parse STATIC
         src/parser.cpp
         include/tiny-parse/parser.hpp
         src/option.hpp
+        src/utils.hpp
+        src/option.cpp
 )
 target_include_directories(tiny_parse PRIVATE
         ${CMAKE_SOURCE_DIR}/include
