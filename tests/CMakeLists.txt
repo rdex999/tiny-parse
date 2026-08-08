@@ -18,8 +18,4 @@ target_link_libraries(tiny_parse_tests
         GTest::gtest_main
 )
 
-target_include_directories(tiny_parse_tests PRIVATE
-        ${CMAKE_SOURCE_DIR}/include
-)
-
 gtest_discover_tests(tiny_parse_tests)

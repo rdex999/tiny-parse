@@ -17,24 +17,29 @@
 
 namespace tiny_parse
 {
-void Parser::parse(int argc, char* argv[])
+Result Parser::parse(int argc, char* argv[], bool help, bool address_error) &&
 {
-	/* TODO: Implement parsing */
-}
+	if (argv == nullptr)
+		throw std::invalid_argument("Argument array (argv) cannot be null.");
 
-template<typename  T>
-void Parser::add_option(std::string canonical, std::string alias, std::string help, std::optional<T> default_value)
-{
-	if (options_.contains(canonical))
-		throw std::logic_error(std::string("Argument \"") + canonical + "\" was already defined.");
+	/* TODO: Implement parsing. */
 
-	options_[canonical] = std::make_unique<Option>(canonical, std::move(default_value.value_or(T {})),
-		!default_value.has_value(), std::move(alias), std::move(help));
+	return {std::move(options_map_), std::move(options_), ResultType::SUCCESS, {}, {}, {}};
 }
 
 template<typename T>
-T Parser::get(const std::string& name)
+void Parser::add_option(std::string canonical, std::string alias, std::string help, std::optional<T> default_value)
 {
-	/* TODO: Implement get */
+	if (options_map_.contains(canonical))
+		throw std::logic_error(std::string("Argument \"") + canonical + "\" was already defined.");
+
+	std::unique_ptr<Option> option = std::make_unique<Option>(canonical, std::move(default_value.value_or(T {})),
+		!default_value.has_value(), std::move(alias), std::move(help));
+
+	options_map_[canonical] = option.get();
+	if (!alias.empty())
+		options_map_[alias] = option.get();
+
+	options_.push_back(std::move(option));
 }
 }

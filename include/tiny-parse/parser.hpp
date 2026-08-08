@@ -15,7 +15,9 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
+#include "result.hpp"
 #include "../../src/option.hpp"
 
 namespace tiny_parse
@@ -23,7 +25,14 @@ namespace tiny_parse
 class Parser
 {
 public:
-	void parse(int argc, char* argv[]);
+	/**
+	 * Parses the command line arguments. Results are passed in the result pointer.
+	 * @param argc The amount of arguments in argv.
+	 * @param argv An array of C-style strings, contains argc elements.
+	 * @param help Whether to add a --help/-h argument and print help information if specified.
+	 * @param address_error Whether to print errors and correct usage examples on parsing failure.
+	 */
+	Result parse(int argc, char* argv[], bool help = true, bool address_error = true) &&;
 
 	/**
 	 * Adds the given argument. Will be parsed when parse() is called.
@@ -37,16 +46,8 @@ public:
 	template<typename  T>
 	void add_option(std::string canonical, std::string alias = {}, std::string help = {}, std::optional<T> default_value = std::nullopt);
 
-	/**
-	 * Gets the requested argument by its canonical name. (long name)
-	 * @tparam T The type of the argument to get.
-	 * @param name The canonical (long name) of the argument.
-	 * @return T as the requested argument.
-	 */
-	template<typename T>
-	T get(const std::string& name);
-
 private:
-	std::unordered_map<std::string, std::unique_ptr<Option>> options_;
+	std::unordered_map<std::string, Option*> options_map_;
+	std::vector<std::unique_ptr<Option>> options_;
 };
 }
