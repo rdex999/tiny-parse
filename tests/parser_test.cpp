@@ -11,29 +11,9 @@
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
 
-#include <utility>
-
+#include <gtest/gtest.h>
 #include "tiny-parse/parser.hpp"
 
-namespace tiny_parse
+TEST(ParserTest, Works)
 {
-Parser::Parser()
-{
-}
-
-void Parser::parse(int argc, char* argv[])
-{
-}
-
-template<typename  T>
-void Parser::add_option(std::string canonical, std::string alias, std::string help, std::optional<T> default_value)
-{
-
-}
-
-template<typename T>
-T Parser::get(const std::string& name)
-{
-
-}
 }
