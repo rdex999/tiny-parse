@@ -17,12 +17,32 @@
 
 namespace tiny_parse
 {
-Result Parser::parse(int argc, char* argv[], bool help, bool address_error) &&
+Result Parser::parse(int argc, const char* argv[], bool help, bool address_error) &&
 {
 	if (argv == nullptr)
 		throw std::invalid_argument("Argument array (argv) cannot be null.");
 
-	/* TODO: Implement parsing. */
+	argc_ = argc;
+	argv_ = argv;
+
+	while (can_consume())
+	{
+		const char* flag = consume();
+		if (is_short_flag(flag))
+		{
+			/* TODO: Parse long argument. */
+		}
+		else if (is_short_flag(flag))
+		{
+			/* TODO: Parse short argument. */
+		}
+		else
+		{
+			/* TODO: Error. */
+		}
+	}
+
+	/* TODO: Confirm that all required arguments are present. */
 
 	return {std::move(options_map_), std::move(options_), ResultType::SUCCESS, {}, {}, {}};
 }
@@ -42,4 +62,25 @@ void Parser::add_option(std::string canonical, std::string alias, std::string he
 
 	options_.push_back(std::move(option));
 }
+
+[[nodiscard]] inline const char* Parser::consume()
+{
+	if (argv_[position_] == nullptr)
+		throw std::invalid_argument(std::string("String ") + std::to_string(position_) + " in argv is null.");
+
+	return argv_[position_++];
+}
+
+[[nodiscard]] inline const char* Parser::peek(int offset) const
+{
+	if (argv_[position_ + offset] == nullptr)
+		throw std::invalid_argument(std::string("String ") + std::to_string(position_ + offset) + " in argv is null.");
+
+	return argv_[position_ + offset];
+}
+
+[[nodiscard]] inline bool Parser::can_consume() const { return position_ < argc_; }
+
+[[nodiscard]] inline bool Parser::is_short_flag(const char* flag) { return flag[0] == '-' && isalpha(flag[1]); }
+[[nodiscard]] inline bool Parser::is_long_flag(const char* flag) { return flag[0] == '-' && flag[1] == '-' && isalpha(flag[2]); }
 }

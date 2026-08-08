@@ -32,7 +32,7 @@ public:
 	 * @param help Whether to add a --help/-h argument and print help information if specified.
 	 * @param address_error Whether to print errors and correct usage examples on parsing failure.
 	 */
-	Result parse(int argc, char* argv[], bool help = true, bool address_error = true) &&;
+	Result parse(int argc, const char* argv[], bool help = true, bool address_error = true) &&;
 
 	/**
 	 * Adds the given argument. Will be parsed when parse() is called.
@@ -49,5 +49,15 @@ public:
 private:
 	std::unordered_map<std::string, Option*> options_map_;
 	std::vector<std::unique_ptr<Option>> options_;
+
+	int argc_ = -1;
+	const char** argv_ = nullptr;
+	uint position_ = 1;
+
+	[[nodiscard]] inline const char* consume();
+	[[nodiscard]] inline const char* peek(int offset) const;
+	[[nodiscard]] inline bool can_consume() const;
+	[[nodiscard]] static inline bool is_short_flag(const char* flag);
+	[[nodiscard]] static inline bool is_long_flag(const char* flag);
 };
 }
