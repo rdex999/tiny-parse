@@ -49,7 +49,7 @@ public:
 	 * A full help message with a correct usage example.
 	 * @return The generated help message and correct usage.
 	 */
-	[[nodiscard]] std::string full_message() const { return help + '\n' + usage; }
+	[[nodiscard]] std::string full_message() const { return usage + '\n' + help; }
 
 	/**
 	 * Gets the requested argument by its canonical name. (long name)

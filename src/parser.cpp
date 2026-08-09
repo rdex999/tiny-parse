@@ -27,12 +27,12 @@ Result Parser::parse(int argc, const char* argv[], bool help, bool address_error
 	if (argc < 1)
 		throw std::invalid_argument(std::string("Argument count (argc) cannot be less than 1. Given was ") + std::to_string(argc) + ".");
 
-	std::string help_msg = build_help();
-	std::string usage_msg = {}; //build_usage();
-	std::string error_msg;
-
 	argc_ = argc;
 	argv_ = argv;
+
+	std::string help_msg = build_help();
+	std::string usage_msg = build_usage();
+	std::string error_msg;
 
 	while (can_consume())
 	{
@@ -57,13 +57,17 @@ Result Parser::parse(int argc, const char* argv[], bool help, bool address_error
 }
 
 template<typename T>
-void Parser::add_option(const std::string& canonical, const std::string& alias, std::string help, std::optional<T> default_value)
+void Parser::add_option(const std::string& canonical, const std::string& alias, std::string help, const std::optional<T>& default_value)
 {
 	if (options_map_.contains(canonical))
 		throw std::logic_error(std::string("Argument \"") + canonical + "\" was already defined.");
 
+	if (std::is_same_v<T, bool> && default_value.has_value())
+		throw std::invalid_argument("Boolean argument cannot have a default value. Default is always false.");
+
+	const bool required = !default_value.has_value() && !std::is_same_v<T, bool>;
 	std::unique_ptr<Option> option = std::make_unique<Option>(canonical, std::move(default_value.value_or(T {})),
-		!default_value.has_value(), alias, std::move(help));
+		required, alias, std::move(help));
 
 	options_map_[canonical] = option.get();
 	if (!alias.empty())
@@ -71,10 +75,10 @@ void Parser::add_option(const std::string& canonical, const std::string& alias, 
 
 	options_.push_back(std::move(option));
 }
-template void Parser::add_option<int>(const std::string& canonical, const std::string& alias, std::string help, std::optional<int> default_value);
-template void Parser::add_option<double>(const std::string& canonical, const std::string& alias, std::string help, std::optional<double> default_value);
-template void Parser::add_option<bool>(const std::string& canonical, const std::string& alias, std::string help, std::optional<bool> default_value);
-template void Parser::add_option<std::string>(const std::string& canonical, const std::string& alias, std::string help, std::optional<std::string> default_value);
+template void Parser::add_option<int>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<int>& default_value);
+template void Parser::add_option<double>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<double>& default_value);
+template void Parser::add_option<bool>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<bool>& default_value);
+template void Parser::add_option<std::string>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<std::string>& default_value);
 
 inline std::string Parser::build_help() const
 {
@@ -113,12 +117,23 @@ inline std::string Parser::build_help() const
 
 inline std::string Parser::build_usage() const
 {
-	throw std::logic_error("Unimplemented");
-}
+	const char* executable = argv_[0];
+	if (executable == nullptr)
+		throw std::invalid_argument("String 0 in argv, the executable name, is null. Please see a doctor.");
 
-inline std::string Parser::build_error() const
-{
-	throw std::logic_error("Unimplemented");
+	std::string result = std::format("Usage: {}", executable);
+	for (const auto& option : options_)
+	{
+		if (!option->required)
+			continue;
+
+		std::string upper = option->canonical;
+		std::ranges::transform(upper, upper.begin(), ::toupper);
+
+		result += std::format(" --{} <{}>", option->canonical, upper);
+	}
+
+	return result;
 }
 
 inline const char* Parser::consume()

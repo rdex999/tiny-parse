@@ -21,8 +21,10 @@ TEST(ParserAddOptionTest, DoesntThrow)
 	parser.add_option<double>("time", "t", "Run-time.", 1.5);
 	parser.add_option<bool>("quiet", {}, "Quiet mode.");
 	parser.add_option<std::string>("message", "m", "The message to display.");
+	parser.add_option<std::string>("format", "f", "The format to use.");
 
-	const char* argv[] {"--speed"};
+	const char* argv[] {"./main", "--speed"};
 
 	tiny_parse::Result result = std::move(parser).parse(1, argv);
+	std::cout << result.full_message() << std::endl;
 }
