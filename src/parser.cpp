@@ -186,10 +186,19 @@ inline std::string Parser::build_help() const
 			opt += std::format(" | -{}", option->alias);
 		}
 
+		bool pre_type_aligned = true;
 		if (const int padding = 19 - static_cast<int>(opt.length()); padding > 0)
 			opt += std::string(padding, ' ');
+		else
+			pre_type_aligned = padding == 0;
 
-		opt += std::format(" <=> [{}] ", option->type_string());
+		const std::string type_string = option->type_string();
+		const int type_pad = (8 - static_cast<int>(type_string.length())) / 2;
+		const bool align = (8 - static_cast<int>(type_string.length())) % 2 != 0;
+		opt += std::format(" <=> [{}{}{}] ", std::string(type_pad, ' '), type_string, std::string(type_pad, ' '));
+		if (align && pre_type_aligned)
+			opt += ' ';
+
 		if (!option->help.empty())
 			opt += option->help;
 
