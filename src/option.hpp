@@ -40,11 +40,6 @@ public:
 		assert_supported_type<T>();
 	}
 
-	static constexpr int int_index = 0;
-	static constexpr int double_index = 1;
-	static constexpr int bool_index = 2;
-	static constexpr int string_index = 3;
-
 	const std::string canonical;
 	const std::string alias;
 	const std::string help;
@@ -60,6 +55,11 @@ public:
 	[[nodiscard]] std::string value_string() const;
 
 private:
+	static constexpr int int_index		= 0;
+	static constexpr int double_index	= 1;
+	static constexpr int bool_index		= 2;
+	static constexpr int string_index	= 3;
+
 	std::variant<int, double, bool, std::string> value_;
 	uint set_count = 0;
 

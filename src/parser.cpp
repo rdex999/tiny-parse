@@ -87,16 +87,21 @@ Result Parser::parse(int argc, const char* argv[], bool help, bool address_error
 				break;
 			}
 
-			option->set(res.value());
+			option->set<int>(res.value());
 		}
 		else if (type == OptionType::DOUBLE)
 		{
-			/* TODO: Parse double. */
+			const std::optional<double> res = try_parse_double(str);
+			if (!res.has_value())
+			{
+				error_msg = std::format(R"(Decimal value expected after "{}". Could not parse "{}" to a decimal number.)", flag, str);
+				break;
+			}
+
+			option->set<double>(res.value());
 		}
 		else if (type == OptionType::STRING)
-		{
-			/* TODO: Parse string. */
-		}
+			option->set<std::string>(str);
 	}
 
 	/* TODO: Confirm that all required arguments are present. */
@@ -214,6 +219,23 @@ inline std::optional<int> Parser::try_parse_int(const std::string& str)
 	{
 		size_t pos;
 		int value = std::stoi(str, &pos);
+		if (pos != str.size())
+			return std::nullopt;
+
+		return value;
+	}
+	catch (...)
+	{
+		return std::nullopt;
+	}
+}
+
+std::optional<double> Parser::try_parse_double(const std::string& str)
+{
+	try
+	{
+		size_t pos;
+		double value = std::stod(str, &pos);
 		if (pos != str.size())
 			return std::nullopt;
 

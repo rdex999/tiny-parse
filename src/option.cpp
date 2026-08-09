@@ -38,6 +38,10 @@ T Option::get() const
 
 	return std::get<T>(value_);
 }
+template int Option::get<int>() const;
+template double Option::get<double>() const;
+template bool Option::get<bool>() const;
+template std::string Option::get<std::string>() const;
 
 std::string Option::type_string() const
 {

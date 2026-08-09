@@ -31,4 +31,8 @@ T Result::get(const std::string& canonical)
 
 	return options_map_[canonical]->get<T>();
 }
+template int Result::get<int>(const std::string& canonical);
+template double Result::get<double>(const std::string& canonical);
+template bool Result::get<bool>(const std::string& canonical);
+template std::string Result::get<std::string>(const std::string& canonical);
 }

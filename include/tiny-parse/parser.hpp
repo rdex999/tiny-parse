@@ -67,5 +67,6 @@ private:
 	[[nodiscard]] static inline bool is_flag(const char* flag);
 
 	[[nodiscard]] static inline std::optional<int> try_parse_int(const std::string& str);
+	[[nodiscard]] static inline std::optional<double> try_parse_double(const std::string& str);
 };
 }
