@@ -54,6 +54,8 @@ private:
 	const char** argv_ = nullptr;
 	uint position_ = 1;
 
+	[[nodiscard]] Option* try_get(const std::string& name);
+
 	[[nodiscard]] inline std::string build_help() const;
 	[[nodiscard]] inline std::string build_usage() const;
 
@@ -62,5 +64,8 @@ private:
 	[[nodiscard]] inline bool can_consume() const;
 	[[nodiscard]] static inline bool is_short_flag(const char* flag);
 	[[nodiscard]] static inline bool is_long_flag(const char* flag);
+	[[nodiscard]] static inline bool is_flag(const char* flag);
+
+	[[nodiscard]] static inline std::optional<int> try_parse_int(const std::string& str);
 };
 }

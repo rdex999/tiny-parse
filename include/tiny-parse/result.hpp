@@ -52,7 +52,7 @@ public:
 	[[nodiscard]] std::string full_message() const { return usage + '\n' + help; }
 
 	/**
-	 * Gets the requested argument by its canonical name. (long name)
+	 * Gets the requested argument by its canonical or alias name.
 	 * @tparam T The type of the argument to get.
 	 * @param canonical The canonical (long name) of the argument.
 	 * @return T as the requested argument.

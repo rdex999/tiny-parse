@@ -21,6 +21,14 @@
 
 namespace tiny_parse
 {
+enum class OptionType : uint8_t
+{
+	INT,
+	DOUBLE,
+	BOOL,
+	STRING,
+};
+
 class Option
 {
 public:
@@ -47,12 +55,14 @@ public:
 	template <typename T>
 	[[nodiscard]] T get() const;
 	[[nodiscard]] bool was_set() const { return set_count > 0; };
+	[[nodiscard]] OptionType type() const { return static_cast<OptionType>(type_index());}
 	[[nodiscard]] std::string type_string() const;
-	[[nodiscard]] int type_index() const;
 	[[nodiscard]] std::string value_string() const;
 
 private:
 	std::variant<int, double, bool, std::string> value_;
 	uint set_count = 0;
+
+	[[nodiscard]] int type_index() const;
 };
 }

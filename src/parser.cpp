@@ -37,17 +37,65 @@ Result Parser::parse(int argc, const char* argv[], bool help, bool address_error
 	while (can_consume())
 	{
 		const char* flag = consume();
+		const char* argument;
 		if (is_short_flag(flag))
-		{
-			/* TODO: Parse long argument. */
-		}
-		else if (is_short_flag(flag))
-		{
-			/* TODO: Parse short argument. */
-		}
+			argument = flag + 1;
+
+		else if (is_long_flag(flag))
+			argument = flag + 2;
+
 		else
 		{
-			/* TODO: Error. */
+			error_msg = std::format("Invalid argument syntax \"{}\".", flag);
+			break;
+		}
+
+		Option* option = try_get(argument);
+		if (option == nullptr)
+		{
+			error_msg = std::format("No such argument \"{}\".", flag);
+			break;
+		}
+
+		if (option->was_set())
+		{
+			error_msg = std::format("Argument \"{}\" was already set.", flag);
+			break;
+		}
+
+		const OptionType type = option->type();
+
+		if (type == OptionType::BOOL)
+		{
+			option->set<bool>(true);
+			continue;
+		}
+
+		if (!can_consume())
+		{
+			error_msg = std::format("A value is expected after \"{}\".", flag);
+			break;
+		}
+		const char* str = consume();
+
+		if (type == OptionType::INT)
+		{
+			const std::optional<int> res = try_parse_int(str);
+			if (!res.has_value())
+			{
+				error_msg = std::format(R"(Integer value expected after "{}". Could not parse "{}" to an integer.)", flag, str);
+				break;
+			}
+
+			option->set(res.value());
+		}
+		else if (type == OptionType::DOUBLE)
+		{
+			/* TODO: Parse double. */
+		}
+		else if (type == OptionType::STRING)
+		{
+			/* TODO: Parse string. */
 		}
 	}
 
@@ -75,6 +123,9 @@ void Parser::add_option(const std::string& canonical, const std::string& alias, 
 
 	options_.push_back(std::move(option));
 }
+
+Option* Parser::try_get(const std::string& name) { return options_map_.contains(name) ? options_map_[name] : nullptr; }
+
 template void Parser::add_option<int>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<int>& default_value);
 template void Parser::add_option<double>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<double>& default_value);
 template void Parser::add_option<bool>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<bool>& default_value);
@@ -82,21 +133,21 @@ template void Parser::add_option<std::string>(const std::string& canonical, cons
 
 inline std::string Parser::build_help() const
 {
-	std::string msg = "Options:\n\t";
+	std::string msg = "Options:";
 	for (const auto& option : options_)
 	{
-		std::string opt;
+		std::string opt = "\n\t";
 
 		opt += std::format("--{}", option->canonical);
 		if (!option->alias.empty())
 		{
-			if (const int padding = 10 - static_cast<int>(opt.length()); padding > 0)
+			if (const int padding = 12 - static_cast<int>(opt.length()); padding > 0)
 				opt += std::string(padding, ' ');
 
 			opt += std::format(" | -{}", option->alias);
 		}
 
-		if (const int padding = 17 - static_cast<int>(opt.length()); padding > 0)
+		if (const int padding = 19 - static_cast<int>(opt.length()); padding > 0)
 			opt += std::string(padding, ' ');
 
 		opt += std::format(" <=> [{}] ", option->type_string());
@@ -106,10 +157,10 @@ inline std::string Parser::build_help() const
 		if (!opt.ends_with(' '))
 			opt += ' ';
 
-		if (!option->required && option->type_index() != Option::bool_index)
+		if (!option->required && option->type() != OptionType::BOOL)
 			opt += std::format("Default {}.", option->value_string());
 
-		msg += opt + "\n\t";
+		msg += opt;
 	}
 
 	return msg;
@@ -155,4 +206,22 @@ inline const char* Parser::peek(int offset) const
 inline bool Parser::can_consume() const				{ return position_ < argc_; }
 inline bool Parser::is_short_flag(const char* flag) { return flag[0] == '-' && isalpha(flag[1]); }
 inline bool Parser::is_long_flag(const char* flag)	{ return flag[0] == '-' && flag[1] == '-' && isalpha(flag[2]); }
+inline bool Parser::is_flag(const char* flag)		{ return is_short_flag(flag) || is_long_flag(flag); }
+
+inline std::optional<int> Parser::try_parse_int(const std::string& str)
+{
+	try
+	{
+		size_t pos;
+		int value = std::stoi(str, &pos);
+		if (pos != str.size())
+			return std::nullopt;
+
+		return value;
+	}
+	catch (...)
+	{
+		return std::nullopt;
+	}
+}
 }

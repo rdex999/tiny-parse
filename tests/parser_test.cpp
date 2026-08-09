@@ -23,8 +23,8 @@ TEST(ParserAddOptionTest, DoesntThrow)
 	parser.add_option<std::string>("message", "m", "The message to display.");
 	parser.add_option<std::string>("format", "f", "The format to use.");
 
-	const char* argv[] {"./main", "--speed"};
+	const char* argv[] {"./main", "--speed", "5", "--quiet"};
 
-	tiny_parse::Result result = std::move(parser).parse(1, argv);
+	tiny_parse::Result result = std::move(parser).parse(4, argv);
 	std::cout << result.full_message() << std::endl;
 }

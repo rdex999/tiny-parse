@@ -24,6 +24,10 @@ void Option::set(T value)
 	value_ = value;
 	++set_count;
 }
+template void Option::set<int>(int value);
+template void Option::set<double>(double value);
+template void Option::set<bool>(bool value);
+template void Option::set<std::string>(std::string value);
 
 template<typename T>
 T Option::get() const
