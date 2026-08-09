@@ -16,6 +16,7 @@
 #include "tiny-parse/parser.hpp"
 
 #include <format>
+#include <iostream>
 
 namespace tiny_parse
 {
@@ -104,9 +105,33 @@ Result Parser::parse(int argc, const char* argv[], bool help, bool address_error
 			option->set<std::string>(str);
 	}
 
-	/* TODO: Confirm that all required arguments are present. */
+	if (error_msg.empty())
+	{
+		for (const auto & option : options_)
+		{
+			if (option->was_set() || !option->required)
+				continue;
 
-	return {std::move(options_map_), std::move(options_), ResultType::SUCCESS, std::move(help_msg), std::move(usage_msg), std::move(error_msg)};
+			if (error_msg.empty())
+				error_msg += "Missing arguments: ";
+			else
+				error_msg += ", ";
+
+			error_msg += std::format("--{}", option->canonical);
+		}
+	}
+
+	ResultType result;
+	if (!error_msg.empty())
+	{
+		result = ResultType::FAILURE;
+		if (address_error)
+			std::cerr << "Error: " << error_msg << "\n" << usage_msg << std::endl;
+	}
+	else
+		result = ResultType::SUCCESS;
+
+	return {std::move(options_map_), std::move(options_), result, std::move(help_msg), std::move(usage_msg), std::move(error_msg)};
 }
 
 template<typename T>

@@ -28,7 +28,6 @@ TEST(ParserDebug, Debug)
 	const char* argv[] {"./main", "--speed", "5", "--quiet"};
 
 	tiny_parse::Result result = std::move(parser).parse(ARR_LEN(argv), argv);
-	std::cout << result.full_message() << std::endl;
 }
 
 TEST(ParserParsingTest, ParseCorrectly)
@@ -42,11 +41,11 @@ TEST(ParserParsingTest, ParseCorrectly)
 	const char* argv[] = { "./main", "--quiet", "-m", "Hello world!", "--speed", "50", "--time", "60.3" };
 	tiny_parse::Result result = std::move(parser).parse(ARR_LEN(argv), argv);
 
-	ASSERT_TRUE(result.result == tiny_parse::ResultType::SUCCESS);
-	ASSERT_TRUE(result.get<int>("speed") == 50);
-	ASSERT_TRUE(result.get<double>("time") == 60.3);
-	ASSERT_TRUE(result.get<bool>("quiet") == true);
-	ASSERT_TRUE(result.get<std::string>("m") == "Hello world!");
+	ASSERT_EQ(result.result, tiny_parse::ResultType::SUCCESS);
+	ASSERT_EQ(result.get<int>("speed"), 50);
+	ASSERT_EQ(result.get<double>("time"), 60.3);
+	ASSERT_EQ(result.get<bool>("quiet"), true);
+	ASSERT_EQ(result.get<std::string>("m"), "Hello world!");
 }
 
 TEST(ParserDuplicateOptionTest, Throws)
@@ -64,4 +63,18 @@ TEST(ParserDuplicateOptionTest, Throws)
 	}
 
 	ASSERT_TRUE(threw);
+}
+
+TEST(ParserMissingArgumentTest, ResultFailureWithError)
+{
+	tiny_parse::Parser parser;
+	parser.add_option<int>("speed", "s", "The speed of the player.", 2);
+	parser.add_option<double>("time", "t", "Run-time.");
+	parser.add_option<std::string>("name", "The name of the player.");
+
+	const char* argv[] = { "./main", "--speed", "50" };
+	tiny_parse::Result result = std::move(parser).parse(ARR_LEN(argv), argv, true, false);
+
+	ASSERT_EQ(result.result, tiny_parse::ResultType::FAILURE);
+	ASSERT_EQ(result.error, "Missing arguments: --time, --name");
 }
