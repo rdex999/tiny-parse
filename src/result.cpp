@@ -13,6 +13,8 @@
 
 #include "tiny-parse/result.hpp"
 
+#include <format>
+
 namespace tiny_parse
 {
 [[nodiscard]] std::string Result::message() const
@@ -20,7 +22,7 @@ namespace tiny_parse
 	if (result == ResultType::SUCCESS)
 		return {};
 
-	return error + '\n' + std::string("Correct usage: ") + usage;
+	return std::format("Error: {}\n{}", error, usage);
 }
 
 template<typename T>

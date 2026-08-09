@@ -28,6 +28,9 @@ Result Parser::parse(int argc, const char* argv[], bool help, bool address_error
 	if (argc < 1)
 		throw std::invalid_argument(std::string("Argument count (argc) cannot be less than 1. Given was ") + std::to_string(argc) + ".");
 
+	if (help)
+		add_option<bool>("help", "h", "Display this help message.");
+
 	argc_ = argc;
 	argv_ = argv;
 
@@ -121,17 +124,23 @@ Result Parser::parse(int argc, const char* argv[], bool help, bool address_error
 		}
 	}
 
-	ResultType result;
-	if (!error_msg.empty())
-	{
-		result = ResultType::FAILURE;
-		if (address_error)
-			std::cerr << "Error: " << error_msg << "\n" << usage_msg << std::endl;
-	}
+	ResultType result_type;
+	if (help && try_get("help")->get<bool>())
+		result_type = ResultType::HELP;
+	else if (!error_msg.empty())
+		result_type = ResultType::FAILURE;
 	else
-		result = ResultType::SUCCESS;
+		result_type = ResultType::SUCCESS;
 
-	return {std::move(options_map_), std::move(options_), result, std::move(help_msg), std::move(usage_msg), std::move(error_msg)};
+	Result result {std::move(options_map_), std::move(options_), result_type, std::move(help_msg), std::move(usage_msg), result_type == ResultType::HELP ? std::string {} : std::move(error_msg) };
+
+	if (help && result_type == ResultType::HELP)
+		std::cout << result.full_message() << std::endl;
+
+	else if (address_error && result_type == ResultType::FAILURE)
+		std::cerr << result.message() << std::endl;
+
+	return std::move(result);
 }
 
 template<typename T>

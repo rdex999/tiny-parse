@@ -70,7 +70,7 @@ TEST(ParserMissingArgumentTest, ResultFailureWithError)
 	tiny_parse::Parser parser;
 	parser.add_option<int>("speed", "s", "The speed of the player.", 2);
 	parser.add_option<double>("time", "t", "Run-time.");
-	parser.add_option<std::string>("name", "The name of the player.");
+	parser.add_option<std::string>("name", {}, "The name of the player.");
 
 	const char* argv[] = { "./main", "--speed", "50" };
 	tiny_parse::Result result = std::move(parser).parse(ARR_LEN(argv), argv, true, false);
