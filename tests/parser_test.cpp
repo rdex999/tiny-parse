@@ -14,6 +14,15 @@
 #include <gtest/gtest.h>
 #include "tiny-parse/parser.hpp"
 
-TEST(ParserTest, Works)
+TEST(ParserAddOptionTest, DoesntThrow)
 {
+	tiny_parse::Parser parser;
+	parser.add_option<int>("speed", "s", "The speed of the player.", 2);
+	parser.add_option<double>("time", "t", "Run-time.", 1.5);
+	parser.add_option<bool>("quiet", {}, "Quiet mode.");
+	parser.add_option<std::string>("message", "m", "The message to display.");
+
+	const char* argv[] {"--speed"};
+
+	tiny_parse::Result result = std::move(parser).parse(1, argv);
 }

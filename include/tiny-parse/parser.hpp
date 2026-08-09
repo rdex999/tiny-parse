@@ -44,7 +44,7 @@ public:
 	 * If a value is given, the argument is treated as optional and the default value is used if no value was passed.
 	 */
 	template<typename  T>
-	void add_option(std::string canonical, std::string alias = {}, std::string help = {}, std::optional<T> default_value = std::nullopt);
+	void add_option(const std::string& canonical, const std::string& alias = {}, std::string help = {}, std::optional<T> default_value = std::nullopt);
 
 private:
 	std::unordered_map<std::string, Option*> options_map_;
@@ -53,6 +53,10 @@ private:
 	int argc_ = -1;
 	const char** argv_ = nullptr;
 	uint position_ = 1;
+
+	[[nodiscard]] inline std::string build_help() const;
+	[[nodiscard]] inline std::string build_usage() const;
+	[[nodiscard]] inline std::string build_error() const;
 
 	[[nodiscard]] inline const char* consume();
 	[[nodiscard]] inline const char* peek(int offset) const;

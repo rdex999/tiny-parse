@@ -13,7 +13,7 @@ add_executable(tiny_parse_tests
 )
 
 target_link_libraries(tiny_parse_tests
-        PRIVATE
+    PRIVATE
         tiny_parse
         GTest::gtest_main
 )

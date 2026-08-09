@@ -17,13 +17,25 @@
 #include <variant>
 #include <sys/types.h>
 
+#include "utils.hpp"
+
 namespace tiny_parse
 {
 class Option
 {
 public:
 	template <typename T>
-	explicit Option(std::string canonical, T value, bool required, std::string alias = {}, std::string help = {});
+	explicit Option(std::string canonical, T value, bool required, std::string alias = {}, std::string help = {})
+	: canonical(std::move(canonical)), alias(std::move(alias)), help(std::move(help)), required(required),
+		value_(value)
+	{
+		assert_supported_type<T>();
+	}
+
+	static constexpr int int_index = 0;
+	static constexpr int double_index = 1;
+	static constexpr int bool_index = 2;
+	static constexpr int string_index = 3;
 
 	const std::string canonical;
 	const std::string alias;
@@ -32,11 +44,12 @@ public:
 
 	template <typename T>
 	void set(T value);
-
 	template <typename T>
 	[[nodiscard]] T get() const;
-
 	[[nodiscard]] bool was_set() const { return set_count > 0; };
+	[[nodiscard]] std::string type_string() const;
+	[[nodiscard]] int type_index() const;
+	[[nodiscard]] std::string value_string() const;
 
 private:
 	std::variant<int, double, bool, std::string> value_;

@@ -13,20 +13,10 @@
 
 #include "option.hpp"
 
-#include <optional>
-
-#include "utils.hpp"
+#include <format>
 
 namespace tiny_parse
 {
-template <typename T>
-Option::Option(std::string canonical, T value, bool required, std::string alias, std::string help)
-	: canonical(std::move(canonical)), alias(std::move(alias)), help(std::move(help)), required(required),
-		value_(value)
-{
-	assert_supported_type<T>();
-}
-
 template<typename T>
 void Option::set(T value)
 {
@@ -43,5 +33,40 @@ T Option::get() const
 		throw std::logic_error("The option does not contain the requested type.");
 
 	return std::get<T>(value_);
+}
+
+std::string Option::type_string() const
+{
+	switch (value_.index())
+	{
+	case int_index:		return "int";
+	case double_index:	return "double";
+	case bool_index:	return "bool";
+	case string_index:	return "string";
+
+	default:
+		throw std::logic_error(std::format("Option::type() called when value_ was not set. Index {}.", value_.index()));
+	}
+}
+
+int Option::type_index() const { return static_cast<int>(value_.index()); }
+
+std::string Option::value_string() const
+{
+	return std::visit([]<typename T>(const T& value) -> std::string
+	{
+		if constexpr (std::is_same_v<T, int> || std::is_same_v<T, double>)
+			return std::to_string(value);
+
+		else if constexpr (std::is_same_v<T, bool>)
+			return value ? "true" : "false";
+
+		else if constexpr (std::is_same_v<T, std::string>)
+			return std::format("\"{}\"", value);
+
+		else
+			throw std::logic_error("Option::value_string() called when value_ was not set.");
+
+	}, value_);
 }
 }
