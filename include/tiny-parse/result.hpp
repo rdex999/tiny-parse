@@ -20,10 +20,21 @@
 
 namespace tiny_parse
 {
+class Parser;
+
 enum class ResultType : uint8_t
 {
+	/** Parsing was successful, arguments can be used freely. */
 	SUCCESS,
+
+	/** An error has occurred, arguments should not be used. The error message available in the returned Result object. */
 	FAILURE,
+
+	/**
+	 * The --help/-h flags were used and a help message was printed.
+	 * Not all arguments are guaranteed to be present, and should not be used.
+	 * @note Can only be set if the help argument in Parser::parse() was set to true.
+	 */
 	HELP,
 };
 
@@ -34,13 +45,26 @@ enum class ResultType : uint8_t
 class Result
 {
 public:
-	Result(std::unordered_map<std::string, Option*>&& options_map, std::vector<std::unique_ptr<Option>>&& options, ResultType result, std::string help, std::string usage, std::string error)
-		: result(result), help(std::move(help)), usage(std::move(usage)), error(std::move(error)), options_map_(std::move(options_map)), options_(std::move(options))
-	{}
-
+	/**
+	 * The result status of the parsing operation. Always check before accessing arguments.
+	 */
 	const ResultType result;
+
+	/**
+	 * The generated help message. Available regardless of the result of the parsing operation.
+	 */
 	const std::string help;
+
+	/**
+	 * The generated usage message. Available regardless of the result of the parsing operation.
+	 */
 	const std::string usage;
+
+	/**
+	 * The error message. If no errors were found, its an empty string.
+	 * Always contains an error when result is ResultType::FAILURE, and might contain an error (but should be ignored)
+	 * when result is ResultType::HELP
+	 */
 	const std::string error;
 
 	/**
@@ -65,6 +89,12 @@ public:
 	[[nodiscard]] T get(const std::string& canonical);
 
 private:
+	friend class tiny_parse::Parser;
+
+	Result(std::unordered_map<std::string, Option*>&& options_map, std::vector<std::unique_ptr<Option>>&& options, ResultType result, std::string help, std::string usage, std::string error)
+	: result(result), help(std::move(help)), usage(std::move(usage)), error(std::move(error)), options_map_(std::move(options_map)), options_(std::move(options))
+	{}
+
 	std::unordered_map<std::string, Option*> options_map_;
 	std::vector<std::unique_ptr<Option>> options_;
 };
