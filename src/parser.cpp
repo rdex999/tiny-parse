@@ -144,7 +144,7 @@ Result Parser::parse(int argc, const char* argv[], bool help, bool address_error
 }
 
 template<typename T>
-void Parser::add_option(const std::string& canonical, const std::string& alias, std::string help, const std::optional<T>& default_value)
+Parser& Parser::add_option(const std::string& canonical, const std::string& alias, std::string help, const std::optional<T>& default_value) &
 {
 	if (options_map_.contains(canonical))
 		throw std::logic_error(std::string("Argument \"") + canonical + "\" was already defined.");
@@ -161,14 +161,28 @@ void Parser::add_option(const std::string& canonical, const std::string& alias, 
 		options_map_[alias] = option.get();
 
 	options_.push_back(std::move(option));
+
+	return *this;
 }
 
-Option* Parser::try_get(const std::string& name) { return options_map_.contains(name) ? options_map_[name] : nullptr; }
+template<typename T>
+Parser&& Parser::add_option(const std::string& canonical, const std::string& alias, std::string help, const std::optional<T>& default_value) &&
+{
+	add_option<T>(canonical, alias, std::move(help), default_value);
+	return std::move(*this);
+}
 
-template void Parser::add_option<int>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<int>& default_value);
-template void Parser::add_option<double>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<double>& default_value);
-template void Parser::add_option<bool>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<bool>& default_value);
-template void Parser::add_option<std::string>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<std::string>& default_value);
+template Parser& Parser::add_option<int>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<int>& default_value) &;
+template Parser& Parser::add_option<double>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<double>& default_value) &;
+template Parser& Parser::add_option<bool>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<bool>& default_value) &;
+template Parser& Parser::add_option<std::string>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<std::string>& default_value) &;
+
+template Parser&& Parser::add_option<int>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<int>& default_value) &&;
+template Parser&& Parser::add_option<double>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<double>& default_value) &&;
+template Parser&& Parser::add_option<bool>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<bool>& default_value) &&;
+template Parser&& Parser::add_option<std::string>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<std::string>& default_value) &&;
+
+Option* Parser::try_get(const std::string& name) { return options_map_.contains(name) ? options_map_[name] : nullptr; }
 
 inline std::string Parser::build_help() const
 {

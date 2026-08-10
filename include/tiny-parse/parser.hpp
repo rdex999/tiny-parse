@@ -22,11 +22,16 @@
 
 namespace tiny_parse
 {
+/**
+ * The main parsing class. Use this call to declare arguments and parse command line arguments.
+ */
 class Parser
 {
 public:
 	/**
-	 * Parses the command line arguments. Results are passed in the result pointer.
+	 * Parses the command line arguments.
+	 * @note This method is a one-shot. Meaning, the Parser object that this method is called upon
+	 * is not usable after the method is executed.
 	 * @param argc The amount of arguments in argv.
 	 * @param argv An array of C-style strings, contains argc elements.
 	 * @param help Whether to add a --help/-h argument and print help information if specified.
@@ -37,14 +42,28 @@ public:
 	/**
 	 * Adds the given argument. Will be parsed when parse() is called.
 	 * @tparam T The type of the argument.
-	 * @param canonical Optional. The full name of the argument, not including leading "--". For example, "speed" (not "--speed")
+	 * @param canonical The full name of the argument, not including leading "--". For example, "speed" (not "--speed")
 	 * @param alias Optional. The short name of the argument, not including leading "-". For example, "s" (not "-s")
 	 * @param help Optional. Help message describing the purpose of the argument.
 	 * @param default_value Optional. If no value is given, the parameter is treated as required.
 	 * If a value is given, the argument is treated as optional and the default value is used if no value was passed.
+	 * @return An lvalue reference to this object, so it can be used in a builder-style on an lvalue Parser object.
 	 */
-	template<typename  T>
-	void add_option(const std::string& canonical, const std::string& alias = {}, std::string help = {}, const std::optional<T>& default_value = std::nullopt);
+	template<typename T>
+	Parser& add_option(const std::string& canonical, const std::string& alias = {}, std::string help = {}, const std::optional<T>& default_value = std::nullopt) &;
+
+	/**
+	 * Adds the given argument. Will be parsed when parse() is called.
+	 * @tparam T The type of the argument.
+	 * @param canonical The full name of the argument, not including leading "--". For example, "speed" (not "--speed")
+	 * @param alias Optional. The short name of the argument, not including leading "-". For example, "s" (not "-s")
+	 * @param help Optional. Help message describing the purpose of the argument.
+	 * @param default_value Optional. If no value is given, the parameter is treated as required.
+	 * If a value is given, the argument is treated as optional and the default value is used if no value was passed.
+	 * @return An rvalue reference to this object, so it can be used in a builder-style on an rvalue Parser object.
+	 */
+	template<typename T>
+	Parser&& add_option(const std::string& canonical, const std::string& alias = {}, std::string help = {}, const std::optional<T>& default_value = std::nullopt) &&;
 
 private:
 	std::unordered_map<std::string, Option*> options_map_;

@@ -27,6 +27,10 @@ enum class ResultType : uint8_t
 	HELP,
 };
 
+/**
+ * Describes the result of the parsing operation, and gives access to the parsed arguments.
+ * @note Created by the Parser::parse() method.
+ */
 class Result
 {
 public:
@@ -54,7 +58,7 @@ public:
 	/**
 	 * Gets the requested argument by its canonical or alias name.
 	 * @tparam T The type of the argument to get.
-	 * @param canonical The canonical (long name) of the argument.
+	 * @param canonical The canonical or alias name of the argument.
 	 * @return T as the requested argument.
 	 */
 	template<typename T>
