@@ -3,6 +3,8 @@ project(tiny_parse)
 
 set(CMAKE_CXX_STANDARD 26)
 
+option(TINY_PARSE_TESTS "Build Tiny Parse tests." OFF)
+
 add_library(tiny_parse STATIC
         src/parser.cpp
         include/tiny-parse/parser.hpp
@@ -20,4 +22,6 @@ target_include_directories(tiny_parse
         ${CMAKE_SOURCE_DIR}/src
 )
 
-add_subdirectory(tests)
+if(TINY_PARSE_TESTS)
+    add_subdirectory(tests)
+endif()
