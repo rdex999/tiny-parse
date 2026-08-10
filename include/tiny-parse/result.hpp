@@ -51,6 +51,12 @@ public:
 	const ResultType result;
 
 	/**
+	 * The description of your app, if you gave one in tiny_parse::Parser::Parser().
+	 * Otherwise, this field is empty.
+	 */
+	const std::string description;
+
+	/**
 	 * The generated help message. Available regardless of the result of the parsing operation.
 	 */
 	const std::string help;
@@ -62,8 +68,8 @@ public:
 
 	/**
 	 * The error message. If no errors were found, its an empty string.
-	 * Always contains an error when result is ResultType::FAILURE, and might contain an error (but should be ignored)
-	 * when result is ResultType::HELP
+	 * Always contains an error when result is tiny_parse::ResultType::FAILURE, and might contain an error (but should be ignored)
+	 * when result is tiny_parse::ResultType::HELP
 	 */
 	const std::string error;
 
@@ -74,10 +80,10 @@ public:
 	[[nodiscard]] std::string message() const;
 
 	/**
-	 * A full help message with a correct usage example.
-	 * @return The generated help message and correct usage.
+	 * A full help message with your app's description (if any) and a correct usage example.
+	 * @return The generated message.
 	 */
-	[[nodiscard]] std::string full_message() const { return usage + '\n' + help; }
+	[[nodiscard]] std::string full_message() const;
 
 	/**
 	 * Gets the requested argument by its canonical or alias name.
@@ -91,8 +97,8 @@ public:
 private:
 	friend class tiny_parse::Parser;
 
-	Result(std::unordered_map<std::string, Option*>&& options_map, std::vector<std::unique_ptr<Option>>&& options, ResultType result, std::string help, std::string usage, std::string error)
-	: result(result), help(std::move(help)), usage(std::move(usage)), error(std::move(error)), options_map_(std::move(options_map)), options_(std::move(options))
+	Result(std::unordered_map<std::string, Option*>&& options_map, std::vector<std::unique_ptr<Option>>&& options, ResultType result, std::string description, std::string help, std::string usage, std::string error)
+		: result(result), description(std::move(description)), help(std::move(help)), usage(std::move(usage)), error(std::move(error)), options_map_(std::move(options_map)), options_(std::move(options))
 	{}
 
 	std::unordered_map<std::string, Option*> options_map_;

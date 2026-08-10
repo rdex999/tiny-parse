@@ -20,7 +20,14 @@
 
 namespace tiny_parse
 {
-Result Parser::parse(int argc, const char* argv[], bool help, bool address_error) &&
+Parser::Parser(std::string description, bool help, bool address_error)
+	: description_(std::move(description)), help_(help), address_error_(address_error)
+{
+	if (help)
+		add_option<bool>("help", "h", "Display this help message.");
+}
+
+Result Parser::parse(int argc, const char* argv[]) &&
 {
 	if (argv == nullptr)
 		throw std::invalid_argument("Argument array (argv) cannot be null.");
@@ -28,8 +35,6 @@ Result Parser::parse(int argc, const char* argv[], bool help, bool address_error
 	if (argc < 1)
 		throw std::invalid_argument(std::string("Argument count (argc) cannot be less than 1. Given was ") + std::to_string(argc) + ".");
 
-	if (help)
-		add_option<bool>("help", "h", "Display this help message.");
 
 	argc_ = argc;
 	argv_ = argv;
@@ -125,19 +130,21 @@ Result Parser::parse(int argc, const char* argv[], bool help, bool address_error
 	}
 
 	ResultType result_type;
-	if (help && try_get("help")->get<bool>())
+	if (help_ && try_get("help")->get<bool>())
 		result_type = ResultType::HELP;
 	else if (!error_msg.empty())
 		result_type = ResultType::FAILURE;
 	else
 		result_type = ResultType::SUCCESS;
 
-	Result result {std::move(options_map_), std::move(options_), result_type, std::move(help_msg), std::move(usage_msg), result_type == ResultType::HELP ? std::string {} : std::move(error_msg) };
+	Result result {std::move(options_map_), std::move(options_), result_type,
+		std::move(description_), std::move(help_msg), std::move(usage_msg),
+		result_type == ResultType::HELP ? std::string {} : std::move(error_msg) };
 
-	if (help && result_type == ResultType::HELP)
+	if (help_ && result_type == ResultType::HELP)
 		std::cout << result.full_message() << std::endl;
 
-	else if (address_error && result_type == ResultType::FAILURE)
+	else if (address_error_ && result_type == ResultType::FAILURE)
 		std::cerr << result.message() << std::endl;
 
 	return std::move(result);

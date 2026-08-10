@@ -29,15 +29,20 @@ class Parser
 {
 public:
 	/**
+	* @param description A user-friendly description of your application.
+	* @param help Whether to add a --help/-h argument and print help information if the help argument specified.
+	* @param address_error Whether to print errors and correct usage examples on parsing failure.
+	*/
+	explicit Parser(std::string description = {}, bool help = true, bool address_error = true);
+
+	/**
 	 * Parses the command line arguments.
 	 * @note This method is a one-shot. Meaning, the Parser object that this method is called upon
 	 * is not usable after the method is executed.
 	 * @param argc The amount of arguments in argv.
 	 * @param argv An array of C-style strings, contains argc elements.
-	 * @param help Whether to add a --help/-h argument and print help information if specified.
-	 * @param address_error Whether to print errors and correct usage examples on parsing failure.
 	 */
-	Result parse(int argc, const char* argv[], bool help = true, bool address_error = true) &&;
+	Result parse(int argc, const char* argv[]) &&;
 
 	/**
 	 * Adds the given argument. Will be parsed when parse() is called.
@@ -68,6 +73,10 @@ public:
 private:
 	std::unordered_map<std::string, Option*> options_map_;
 	std::vector<std::unique_ptr<Option>> options_;
+
+	std::string description_;
+	const bool help_;
+	const bool address_error_;
 
 	int argc_ = -1;
 	const char** argv_ = nullptr;

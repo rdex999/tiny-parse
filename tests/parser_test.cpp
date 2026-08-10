@@ -14,18 +14,18 @@
 #include <gtest/gtest.h>
 #include "tiny-parse/parser.hpp"
 
-#define ARR_LEN(arr) (sizeof(arr) / sizeof((arr)[0]))
+#define ARR_LEN(arr) static_cast<size_t>(sizeof(arr) / sizeof((arr)[0]))
 
 TEST(ParserDebug, Debug)
 {
-	tiny_parse::Parser parser;
+	tiny_parse::Parser parser("Test case to debug the parser program.", true, false);
 	parser.add_option<int>("speed", "s", "The speed of the player.", 2);
 	parser.add_option<double>("time", "t", "Run-time.", 1.5);
 	parser.add_option<bool>("quiet", {}, "Quiet mode.");
 	parser.add_option<std::string>("message", "m", "The message to display.");
 	parser.add_option<std::string>("very-long-argument", {}, "A very long argument containing lots of text.");
 
-	const char* argv[] {"./main", "--speed", "5", "--quiet"};
+	const char* argv[] { "./main", "--speed", "5", "--quiet", };
 
 	tiny_parse::Result result = std::move(parser).parse(ARR_LEN(argv), argv);
 }
@@ -68,11 +68,11 @@ TEST(ParserDuplicateOptionTest, Throws)
 TEST(ParserMissingArgumentTest, ResultFailureWithError)
 {
 	const char* argv[] = { "./main", "--speed", "50" };
-	const tiny_parse::Result result = tiny_parse::Parser()
+	const tiny_parse::Result result = tiny_parse::Parser({}, true, false)
 		.add_option<int>("speed", "s", "The speed of the player.", 2)
 		.add_option<double>("time", "t", "Run-time.")
 		.add_option<std::string>("name", {}, "The name of the player.")
-		.parse(ARR_LEN(argv), argv, true, false);
+		.parse(ARR_LEN(argv), argv);
 
 	ASSERT_EQ(result.result, tiny_parse::ResultType::FAILURE);
 	ASSERT_EQ(result.error, "Missing arguments: --time, --name");

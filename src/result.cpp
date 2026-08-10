@@ -17,12 +17,20 @@
 
 namespace tiny_parse
 {
-[[nodiscard]] std::string Result::message() const
+std::string Result::message() const
 {
 	if (result == ResultType::SUCCESS)
 		return {};
 
 	return std::format("Error: {}\n{}", error, usage);
+}
+
+std::string Result::full_message() const
+{
+	if (description.empty())
+		return usage + '\n' + help;
+
+	return description + '\n' + usage + '\n' + help;
 }
 
 template<typename T>

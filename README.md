@@ -3,10 +3,10 @@ Tiny Parse is a fast, lightweight C++ command-line argument parsing library.
 
 # Argument Syntax
 Supported types are: int, double, bool, string.  
-__int__		- `--speed <INTEGER>` `--speed 5`  
-__double__ 	- `--speed <FRACTION>` `--speed 1.2` `--speed 1`  
-__bool__ 	- `--quiet`  
-__string__ 	- `--message <TEXT>` `--message Hello`  
+__int__: 	`--speed <INTEGER>` `--speed 5`  
+__double__: `--speed <FRACTION>` `--speed 1.2` `--speed 1`  
+__bool__ 	`--quiet`  
+__string__: `--message <TEXT>` `--message Hello`  
   
 Flag syntax can be either by full argument name, ("--" prefix) or by alias. ("-" prefix)  
 For example: `--speed`, or alias: `-s`
@@ -43,7 +43,7 @@ If you don't want to install Doxygen or your just lazy, just read the comments i
 
 int main(int argc, char* argv[])
 {
-	tiny_parse::Result result = tiny_parse::Parser()
+	tiny_parse::Result result = tiny_parse::Parser("Example app using Tiny Parse.")
 		.add_option<int>("speed", "s", "The speed of the player.", 2)
 		.add_option<double>("time", "t", "Run-time.", 1.5)
 		.add_option<bool>("quiet", {}, "Quiet mode.")
