@@ -273,8 +273,8 @@ inline const char* Parser::peek(int offset) const
 }
 
 inline bool Parser::can_consume() const				{ return position_ < argc_; }
-inline bool Parser::is_short_flag(const char* flag) { return flag[0] == '-' && isalpha(flag[1]); }
-inline bool Parser::is_long_flag(const char* flag)	{ return flag[0] == '-' && flag[1] == '-' && isalpha(flag[2]); }
+inline bool Parser::is_short_flag(const char* flag) { return flag[0] == '-' && isalpha(flag[1]) != 0; }
+inline bool Parser::is_long_flag(const char* flag)	{ return flag[0] == '-' && flag[1] == '-' && isalpha(flag[2]) != 0; }
 inline bool Parser::is_flag(const char* flag)		{ return is_short_flag(flag) || is_long_flag(flag); }
 
 inline std::optional<int> Parser::try_parse_int(const std::string& str)
