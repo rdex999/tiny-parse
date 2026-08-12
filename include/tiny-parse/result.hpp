@@ -88,20 +88,21 @@ public:
 	/**
 	 * Gets the requested argument by its canonical or alias name.
 	 * @tparam T The type of the argument to get.
-	 * @param canonical The canonical or alias name of the argument.
+	 * @param name The canonical or alias name of the argument.
 	 * @return T as the requested argument.
 	 */
 	template<typename T>
-	[[nodiscard]] T get(const std::string& canonical);
+	[[nodiscard]] T get(const std::string& name);
 
 private:
 	friend class tiny_parse::Parser;
 
-	Result(std::unordered_map<std::string, Option*>&& options_map, std::vector<std::unique_ptr<Option>>&& options, ResultType result, std::string description, std::string help, std::string usage, std::string error)
-		: result(result), description(std::move(description)), help(std::move(help)), usage(std::move(usage)), error(std::move(error)), options_map_(std::move(options_map)), options_(std::move(options))
+	Result(std::unordered_map<std::string, Option*>&& options_map, std::unordered_map<std::string, Option*>&& alias_map, std::vector<std::unique_ptr<Option>>&& options, ResultType result, std::string description, std::string help, std::string usage, std::string error)
+		: result(result), description(std::move(description)), help(std::move(help)), usage(std::move(usage)), error(std::move(error)), options_map_(std::move(options_map)), alias_map_(std::move(alias_map)), options_(std::move(options))
 	{}
 
 	std::unordered_map<std::string, Option*> options_map_;
+	std::unordered_map<std::string, Option*> alias_map_;
 	std::vector<std::unique_ptr<Option>> options_;
 };
 }

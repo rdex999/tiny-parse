@@ -34,15 +34,19 @@ std::string Result::full_message() const
 }
 
 template<typename T>
-T Result::get(const std::string& canonical)
+T Result::get(const std::string& name)
 {
-	if (!options_map_.contains(canonical))
-		throw std::logic_error(std::string("Argument \"") + canonical + "\" was not defined.");
+	if (options_map_.contains(name))
+		return options_map_[name]->get<T>();
 
-	return options_map_[canonical]->get<T>();
+	if (alias_map_.contains(name))
+		return alias_map_[name]->get<T>();
+
+	throw std::logic_error(std::string("Argument \"") + name + "\" was not defined.");
 }
-template int Result::get<int>(const std::string& canonical);
-template double Result::get<double>(const std::string& canonical);
-template bool Result::get<bool>(const std::string& canonical);
-template std::string Result::get<std::string>(const std::string& canonical);
+
+template int Result::get<int>(const std::string& name);
+template double Result::get<double>(const std::string& name);
+template bool Result::get<bool>(const std::string& name);
+template std::string Result::get<std::string>(const std::string& name);
 }

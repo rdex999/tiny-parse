@@ -65,7 +65,7 @@ TEST(ParserDuplicateOptionTest, Throws)
 	ASSERT_TRUE(threw);
 }
 
-TEST(ParserMissingArgumentTest, ResultFailureWithError)
+TEST(ParserMissingArgumentTest, ResultFailureWithCorrectError)
 {
 	const char* argv[] = { "./main", "--speed", "50" };
 	const tiny_parse::Result result = tiny_parse::Parser({}, true, false)
@@ -76,4 +76,15 @@ TEST(ParserMissingArgumentTest, ResultFailureWithError)
 
 	ASSERT_EQ(result.result, tiny_parse::ResultType::FAILURE);
 	ASSERT_EQ(result.error, "Missing arguments: --time, --name");
+}
+
+TEST(ParserShortFlagLongNameTest, ResultFailureWithCorrectError)
+{
+	const char* argv[] = { "./main", "-speed", "50" };
+	const tiny_parse::Result result = tiny_parse::Parser({}, true, false)
+		.add_option<int>("speed", "s", "The speed of the player.", 2)
+		.parse(ARR_LEN(argv), argv);
+
+	ASSERT_EQ(result.result, tiny_parse::ResultType::FAILURE);
+	ASSERT_EQ(result.error, "No such argument \"-speed\".");
 }

@@ -35,7 +35,6 @@ Result Parser::parse(int argc, const char* argv[]) &&
 	if (argc < 1)
 		throw std::invalid_argument(std::string("Argument count (argc) cannot be less than 1. Given was ") + std::to_string(argc) + ".");
 
-
 	argc_ = argc;
 	argv_ = argv;
 
@@ -47,19 +46,24 @@ Result Parser::parse(int argc, const char* argv[]) &&
 	{
 		const char* flag = consume();
 		const char* argument;
+		std::unordered_map<std::string, Option*>* map;
 		if (is_short_flag(flag))
+		{
 			argument = flag + 1;
-
+			map = &alias_map_;
+		}
 		else if (is_long_flag(flag))
+		{
 			argument = flag + 2;
-
+			map = &options_map_;
+		}
 		else
 		{
 			error_msg = std::format("Invalid argument syntax \"{}\".", flag);
 			break;
 		}
 
-		Option* option = try_get(argument);
+		Option* option = map->contains(argument) ? map->operator[](argument) : nullptr;
 		if (option == nullptr)
 		{
 			error_msg = std::format("No such argument \"{}\".", flag);
@@ -137,7 +141,7 @@ Result Parser::parse(int argc, const char* argv[]) &&
 	else
 		result_type = ResultType::SUCCESS;
 
-	Result result {std::move(options_map_), std::move(options_), result_type,
+	Result result {std::move(options_map_), std::move(alias_map_), std::move(options_), result_type,
 		std::move(description_), std::move(help_msg), std::move(usage_msg),
 		result_type == ResultType::HELP ? std::string {} : std::move(error_msg) };
 
@@ -156,6 +160,9 @@ Parser& Parser::add_option(const std::string& canonical, const std::string& alia
 	if (options_map_.contains(canonical))
 		throw std::logic_error(std::string("Argument \"") + canonical + "\" was already defined.");
 
+	if (!alias.empty() && alias_map_.contains(alias))
+		throw std::logic_error(std::string("Alias argument \"") + alias + "\" was already defined.");
+
 	if (std::is_same_v<T, bool> && default_value.has_value())
 		throw std::invalid_argument("Boolean argument cannot have a default value. Default is always false.");
 
@@ -165,7 +172,7 @@ Parser& Parser::add_option(const std::string& canonical, const std::string& alia
 
 	options_map_[canonical] = option.get();
 	if (!alias.empty())
-		options_map_[alias] = option.get();
+		alias_map_[alias] = option.get();
 
 	options_.push_back(std::move(option));
 
@@ -189,7 +196,16 @@ template Parser&& Parser::add_option<double>(const std::string& canonical, const
 template Parser&& Parser::add_option<bool>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<bool>& default_value) &&;
 template Parser&& Parser::add_option<std::string>(const std::string& canonical, const std::string& alias, std::string help, const std::optional<std::string>& default_value) &&;
 
-Option* Parser::try_get(const std::string& name) { return options_map_.contains(name) ? options_map_[name] : nullptr; }
+Option* Parser::try_get(const std::string& name)
+{
+	if (options_map_.contains(name))
+		return options_map_[name];
+
+	if (alias_map_.contains(name))
+		return alias_map_[name];
+
+	return nullptr;
+}
 
 inline std::string Parser::build_help() const
 {

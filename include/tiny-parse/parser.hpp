@@ -74,6 +74,7 @@ public:
 
 private:
 	std::unordered_map<std::string, Option*> options_map_;
+	std::unordered_map<std::string, Option*> alias_map_;
 	std::vector<std::unique_ptr<Option>> options_;
 
 	std::string description_;
