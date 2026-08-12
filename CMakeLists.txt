@@ -17,9 +17,9 @@ add_library(tiny_parse STATIC
 
 target_include_directories(tiny_parse
     PUBLIC
-        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 if(TINY_PARSE_TESTS)
