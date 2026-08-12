@@ -25,7 +25,7 @@ TEST(ParserDebug, Debug)
 	parser.add_option<std::string>("message", "m", "The message to display.");
 	parser.add_option<std::string>("very-long-argument", {}, "A very long argument containing lots of text.");
 
-	const char* argv[] { "./main", "--speed", "5", "--quiet", };
+	const char* argv[] { "./main", "--speed", "5", "--help", };
 
 	tiny_parse::Result result = std::move(parser).parse(ARR_LEN(argv), argv);
 }

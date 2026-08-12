@@ -20,8 +20,8 @@
 
 namespace tiny_parse
 {
-Parser::Parser(std::string description, bool help, bool address_error)
-	: description_(std::move(description)), help_(help), address_error_(address_error)
+Parser::Parser(std::string description, bool help, bool address_error, uint8_t first_pad, uint8_t second_pad)
+	: description_(std::move(description)), help_(help), address_error_(address_error), first_pad_(first_pad), second_pad_(second_pad)
 {
 	if (help)
 		add_option<bool>("help", "h", "Display this help message.");
@@ -201,14 +201,14 @@ inline std::string Parser::build_help() const
 		opt += std::format("--{}", option->canonical);
 		if (!option->alias.empty())
 		{
-			if (const int padding = 12 - static_cast<int>(opt.length()); padding > 0)
+			if (const int padding = static_cast<int>(first_pad_) - static_cast<int>(opt.length()); padding > 0)
 				opt += std::string(padding, ' ');
 
 			opt += std::format(" | -{}", option->alias);
 		}
 
 		bool pre_type_aligned = true;
-		if (const int padding = 19 - static_cast<int>(opt.length()); padding > 0)
+		if (const int padding = static_cast<int>(second_pad_) - static_cast<int>(opt.length()); padding > 0)
 			opt += std::string(padding, ' ');
 		else
 			pre_type_aligned = padding == 0;

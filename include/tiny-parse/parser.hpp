@@ -32,8 +32,10 @@ public:
 	* @param description A user-friendly description of your application.
 	* @param help Whether to add a --help/-h argument and print help information if the help argument specified.
 	* @param address_error Whether to print errors and correct usage examples on parsing failure.
+	* @param first_pad The first padding size in the generated help message.
+	* @param second_pad The second padding size in the generated help message.
 	*/
-	explicit Parser(std::string description = {}, bool help = true, bool address_error = true);
+	explicit Parser(std::string description = {}, bool help = true, bool address_error = true, uint8_t first_pad = 12, uint8_t second_pad = 19);
 
 	/**
 	 * Parses the command line arguments.
@@ -77,6 +79,8 @@ private:
 	std::string description_;
 	const bool help_;
 	const bool address_error_;
+	const uint8_t first_pad_;
+	const uint8_t second_pad_;
 
 	int argc_ = -1;
 	const char** argv_ = nullptr;
