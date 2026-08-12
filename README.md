@@ -20,7 +20,7 @@ There's really not much to document.
 # Usage
 ## Configuration
 If your using Cmake - it's as simple as adding the repo as a 
-git-submodule, and adding `add_subdirectory(<PATH>)` to 
+git-submodule, and adding `add_subdirectory(<PATH>)` and `target_link_libraries(...)` to 
 Your `CMakeLists.txt`.  
 If you're not using Cmake, well… build the library with Cmake,
 take the public headers from `include/tiny-parse` and use em,
