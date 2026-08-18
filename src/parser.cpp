@@ -15,6 +15,7 @@
 
 #include "tiny-parse/parser.hpp"
 
+#include <algorithm>
 #include <format>
 #include <iostream>
 

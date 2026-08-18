@@ -13,7 +13,9 @@
 
 #pragma once
 
+#include <memory>
 #include <unordered_map>
+#include <cstdint>
 #include <vector>
 
 #include "../../src/option.hpp"
