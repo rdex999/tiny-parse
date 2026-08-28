@@ -152,7 +152,7 @@ Result Parser::parse(int argc, const char* argv[]) &&
 	else if (address_error_ && result_type == ResultType::FAILURE)
 		std::cerr << result.message() << std::endl;
 
-	return std::move(result);
+	return result;
 }
 
 template<typename T>
@@ -289,7 +289,7 @@ inline const char* Parser::peek(int offset) const
 	return argv_[position_ + offset];
 }
 
-inline bool Parser::can_consume() const				{ return position_ < argc_; }
+inline bool Parser::can_consume() const				{ return position_ < static_cast<uint>(argc_); }
 inline bool Parser::is_short_flag(const char* flag) { return flag[0] == '-' && isalpha(flag[1]) != 0; }
 inline bool Parser::is_long_flag(const char* flag)	{ return flag[0] == '-' && flag[1] == '-' && isalpha(flag[2]) != 0; }
 inline bool Parser::is_flag(const char* flag)		{ return is_short_flag(flag) || is_long_flag(flag); }
